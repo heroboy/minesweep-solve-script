@@ -11,6 +11,9 @@ importers:
       logic-solver-plus:
         specifier: ^0.2.1
         version: 0.2.1
+      magic-string:
+        specifier: ^0.30.21
+        version: 0.30.21
     devDependencies:
       typescript:
         specifier: ^5.9.2

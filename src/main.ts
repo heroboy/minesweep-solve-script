@@ -1,6 +1,9 @@
 import MineSweepSolver from './MineSweepSolver';
 import * as mop from './mop';
 import * as liwu from './liwu';
+import { GM_getResourceURL } from '$';
+// const url = GM_getResourceURL('minisat_static.wasm');
+// console.log('myurl=', url);
 mop.injectMop(async () =>
 {
 	const game = mop.getGame();
