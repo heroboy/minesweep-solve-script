@@ -17,5 +17,5 @@
     "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["dist/**/*"]
+  "exclude": ["dist/minesweep-solve-script.user.js"]
 }
