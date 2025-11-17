@@ -16,7 +16,7 @@ mop.injectMop(async () =>
 	const solver = new MineSweepSolver(game);
 	mop.renderUI(await solver.solve());
 });
-/*
+
 liwu.injectLiWu(async () =>
 {
 	const game = liwu.getGame();
@@ -28,5 +28,36 @@ liwu.injectLiWu(async () =>
 	console.log('game=', game);
 	const solver = new MineSweepSolver(game);
 	liwu.renderUI(await solver.solve());
+
+	//clicks
+
+}, async () =>
+{
+	const game = liwu.getGame();
+	if (!game) 
+	{
+		console.warn('not find game');
+		return;
+	}
+	console.log('game=', game);
+	const solver = new MineSweepSolver(game);
+	const solveResult = await solver.solve();
+	liwu.renderUI(solveResult);
+	const MAX_CLICK_COUNT = 10;
+	let solveCount = 0;
+	const cells = Array.from(document.querySelectorAll('#game-board .cell')) as HTMLElement[];
+	if (cells.length !== solveResult.length)
+	{
+		console.error(`error,cells.length !== solveResult.length,cells.length =${cells.length}, solveResult.length =${solveResult.length}`);
+	}
+	for (let i = 0; i < solveResult.length; ++i)
+	{
+		if (solveResult[i] === 0)
+		{
+			++solveCount;
+			console.info('click element ', cells[i].getAttribute('data-row'), cells[i].getAttribute('data-col'));
+			cells[i].click();
+			if (solveCount >= MAX_CLICK_COUNT) break;
+		}
+	}
 });
-*/

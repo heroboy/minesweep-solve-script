@@ -1,12 +1,13 @@
-export function injectLiWu(onClickSolve: () => void)
+export function injectLiWu(onClickSolve: () => void, onClickSolve2: () => void)
 {
 	if (location.hostname.toLowerCase() !== 'www.253874.net') return false;
 	const tag = document.querySelector('.game-info');
 	if (!tag) return false;
 	const div = document.createElement('div');
-	div.innerHTML = '<button>solve</button>';
+	div.innerHTML = '<button class="btn-solve">solve</button><button class="btn-solve-reveal">solve&reveal</button>';
 	tag.insertAdjacentElement('afterend', div);
-	div.querySelector('button')?.addEventListener('click', () => { onClickSolve(); });
+	div.querySelector('.btn-solve')?.addEventListener('click', () => { onClickSolve(); });
+	div.querySelector('.btn-solve-reveal')?.addEventListener('click', () => { onClickSolve2(); });
 	return true;
 }
 
@@ -75,9 +76,9 @@ export class Overlay
 		const overlay = document.createElement('div');
 		overlay.className = '_overlay';
 		overlay.style = `position:absolute;left:${board.offsetLeft}px;top:${board.offsetTop}px;display:grid;`
-			+`grid-template-columns:repeat(24,30px);grid-template-rows:repeat(18,30px);border: 2px solid rgba(0,0,0,0);pointer-events:none;`
-		;
-		for(let i = 0;i<24 * 18;++i)
+			+ `grid-template-columns:repeat(24,30px);grid-template-rows:repeat(18,30px);border: 2px solid rgba(0,0,0,0);pointer-events:none;`
+			;
+		for (let i = 0; i < 24 * 18; ++i)
 		{
 			const cell = document.createElement('div');
 			cell.style = `width:30px;height:30px;position:relative;`;

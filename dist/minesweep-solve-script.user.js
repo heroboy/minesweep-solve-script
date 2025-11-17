@@ -4,6 +4,7 @@
 // @version    0.0.0
 // @icon       https://vitejs.dev/logo.svg
 // @match      https://mop.com/*
+// @match      https://www.253874.net/next/mine/indexdb.php
 // @resource   minisat_static.wasm  https://github.com/arfelious/logic-solver-plus/raw/refs/heads/main/mjs/minisat_static.wasm
 // @grant      GM_getResourceURL
 // ==/UserScript==
@@ -5825,7 +5826,7 @@ adjacentNodes = [];
     }
     return false;
   }
-  function getGame() {
+  function getGame$1() {
     const board = document.getElementById("board");
     if (!board) return null;
     const parseRepeat = (s) => {
@@ -5859,11 +5860,11 @@ adjacentNodes = [];
     }
     return { width, height, cells: result };
   }
-  function renderUI(data) {
+  function renderUI$1(data) {
     const board = document.getElementById("board");
     if (!board) return;
     const cells = Array.from(board.querySelectorAll(".cell"));
-    const overlay = new Overlay(board);
+    const overlay = new Overlay$1(board);
     for (let i = 0; i < cells.length; i++) {
       if (data[i] === 0 || data[i] === 1) {
         const color = data[i] === 0 ? "green" : "red";
@@ -5871,7 +5872,7 @@ adjacentNodes = [];
       }
     }
   }
-  class Overlay {
+  let Overlay$1 = class Overlay {
     cells;
     constructor(board) {
       this.cells = [];
@@ -5902,8 +5903,99 @@ adjacentNodes = [];
       this.cells[pos].querySelector("._overlay_dot")?.remove();
       this.cells[pos].appendChild(div);
     }
+  };
+  function injectLiWu(onClickSolve, onClickSolve2) {
+    if (location.hostname.toLowerCase() !== "www.253874.net") return false;
+    const tag = document.querySelector(".game-info");
+    if (!tag) return false;
+    const div = document.createElement("div");
+    div.innerHTML = '<button class="btn-solve">solve</button><button class="btn-solve-reveal">solve&reveal</button>';
+    tag.insertAdjacentElement("afterend", div);
+    div.querySelector(".btn-solve")?.addEventListener("click", () => {
+      onClickSolve();
+    });
+    div.querySelector(".btn-solve-reveal")?.addEventListener("click", () => {
+      onClickSolve2();
+    });
+    return true;
+  }
+  function getGame() {
+    const width = 24;
+    const height = 18;
+    const cells = Array.from(document.querySelectorAll("#game-board .cell"));
+    if (cells.length !== width * height) {
+      console.warn(`get game null, cells.length=${cells.length}, should be ${width * height}`);
+      return null;
+    }
+    const data = Array.from({ length: width * height }, () => -1);
+    for (let i = 0; i < width * height; ++i) {
+      if (cells[i].classList.contains("revealed")) {
+        const text = cells[i].textContent.trim();
+        let v;
+        if (text === "")
+          v = 0;
+        else
+          v = parseInt(text);
+        if (v >= 0 && v <= 8)
+          data[i] = v;
+        else
+          return null;
+      }
+    }
+    return { width, height, cells: data };
+  }
+  function renderUI(data) {
+    const board = document.getElementById("game-board");
+    if (!board) return;
+    const overlay = new Overlay2(board);
+    for (let i = 0; i < overlay.cells.length; i++) {
+      if (data[i] === 0 || data[i] === 1) {
+        const color = data[i] === 0 ? "green" : "red";
+        overlay.setDot(i, color);
+      }
+    }
+  }
+  class Overlay2 {
+    cells = [];
+    constructor(board) {
+      const parent = board.parentElement;
+      const oldoverlay = parent.querySelector("._overlay");
+      if (oldoverlay) oldoverlay.remove();
+      parent.style.position = "relative";
+      const overlay = document.createElement("div");
+      overlay.className = "_overlay";
+      overlay.style = `position:absolute;left:${board.offsetLeft}px;top:${board.offsetTop}px;display:grid;grid-template-columns:repeat(24,30px);grid-template-rows:repeat(18,30px);border: 2px solid rgba(0,0,0,0);pointer-events:none;`;
+      for (let i = 0; i < 24 * 18; ++i) {
+        const cell = document.createElement("div");
+        cell.style = `width:30px;height:30px;position:relative;`;
+        overlay.appendChild(cell);
+        this.cells.push(cell);
+      }
+      parent.appendChild(overlay);
+    }
+    clear() {
+      this.cells.forEach((c) => c.innerHTML = "");
+    }
+    setDot(pos, color) {
+      const style = `position:absolute;width:0px;height:0px;left:1px;top:1px;border-radius:50%;border:2px solid ${color}`;
+      const div = document.createElement("div");
+      div.className = "_overlay_dot";
+      div.style = style;
+      this.cells[pos].querySelector("._overlay_dot")?.remove();
+      this.cells[pos].appendChild(div);
+    }
   }
   injectMop(async () => {
+    const game = getGame$1();
+    if (!game) {
+      console.warn("not find game");
+      return;
+    }
+    console.log("game=", game);
+    const solver = new MineSweepSolver(game);
+    renderUI$1(await solver.solve());
+  });
+  injectLiWu(async () => {
     const game = getGame();
     if (!game) {
       console.warn("not find game");
@@ -5912,6 +6004,30 @@ adjacentNodes = [];
     console.log("game=", game);
     const solver = new MineSweepSolver(game);
     renderUI(await solver.solve());
+  }, async () => {
+    const game = getGame();
+    if (!game) {
+      console.warn("not find game");
+      return;
+    }
+    console.log("game=", game);
+    const solver = new MineSweepSolver(game);
+    const solveResult = await solver.solve();
+    renderUI(solveResult);
+    const MAX_CLICK_COUNT = 10;
+    let solveCount = 0;
+    const cells = Array.from(document.querySelectorAll("#game-board .cell"));
+    if (cells.length !== solveResult.length) {
+      console.error(`error,cells.length !== solveResult.length,cells.length =${cells.length}, solveResult.length =${solveResult.length}`);
+    }
+    for (let i = 0; i < solveResult.length; ++i) {
+      if (solveResult[i] === 0) {
+        ++solveCount;
+        console.info("click element ", cells[i].getAttribute("data-row"), cells[i].getAttribute("data-col"));
+        cells[i].click();
+        if (solveCount >= MAX_CLICK_COUNT) break;
+      }
+    }
   });
   const __viteBrowserExternal = Object.freeze( Object.defineProperty({
     __proto__: null

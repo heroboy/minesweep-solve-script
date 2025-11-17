@@ -13,7 +13,7 @@ export default defineConfig({
 				namespace: 'npm/vite-plugin-monkey',
 				match: [
 					'https://mop.com/*',
-					//'https://www.253874.net/next/mine/indexdb.php'
+					'https://www.253874.net/next/mine/indexdb.php'
 				],
 				resource: {
 					'minisat_static.wasm': 'https://github.com/arfelious/logic-solver-plus/raw/refs/heads/main/mjs/minisat_static.wasm'
