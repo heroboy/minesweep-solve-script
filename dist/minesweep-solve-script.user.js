@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       minesweep-solve-script
 // @namespace  npm/vite-plugin-monkey
-// @version    0.0.0
+// @version    0.0.2
 // @icon       https://vitejs.dev/logo.svg
 // @match      https://mop.com/*
 // @match      https://www.253874.net/next/mine/indexdb.php

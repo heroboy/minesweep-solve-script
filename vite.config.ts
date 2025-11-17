@@ -9,6 +9,7 @@ export default defineConfig({
 		monkey({
 			entry: 'src/main.ts',
 			userscript: {
+				version:"0.0.2",
 				icon: 'https://vitejs.dev/logo.svg',
 				namespace: 'npm/vite-plugin-monkey',
 				match: [
