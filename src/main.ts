@@ -1,7 +1,7 @@
-import MineSweepSolver from './MineSweepSolver';
-import * as mop from './mop';
-import * as liwu from './liwu';
-import { GM_getResourceURL } from '$';
+import MineSweepSolver from './MineSweepSolver.js';
+import * as mop from './mop.js';
+import * as liwu from './liwu.js';
+//import { GM_getResourceURL } from '$';
 // const url = GM_getResourceURL('minisat_static.wasm');
 // console.log('myurl=', url);
 mop.injectMop(async () =>
@@ -17,7 +17,8 @@ mop.injectMop(async () =>
 	mop.renderUI(await solver.solve());
 });
 
-let KEEP = Math.random() * 0;
+let KEEP = Math.random() * 1;
+let g_SkipCount = 0;
 if (KEEP)
 {
 	liwu.injectLiWu(async () =>
@@ -42,27 +43,27 @@ if (KEEP)
 			console.warn('not find game');
 			return;
 		}
-		console.log('game=', game);
+		//console.log('game=', game);
 		const solver = new MineSweepSolver(game);
 		const solveResult = await solver.solve();
 		liwu.renderUI(solveResult);
-		const MAX_CLICK_COUNT = 10;
+		const MAX_CLICK_COUNT = 99;
 		let solveCount = 0;
 		const cells = Array.from(document.querySelectorAll('#game-board .cell')) as HTMLElement[];
 		if (cells.length !== solveResult.length)
 		{
 			console.error(`error,cells.length !== solveResult.length,cells.length =${cells.length}, solveResult.length =${solveResult.length}`);
 		}
-		for (let i = 0; i < solveResult.length; ++i)
+		const resultPos = solveResult.map((v, i) => v === 0 ? i : -1).filter(v => v >= 0);
+		for (let i = 0; i < resultPos.length; ++i)
 		{
-			if (solveResult[i] === 0)
-			{
-				++solveCount;
-				console.info('click element ', cells[i].getAttribute('data-row'), cells[i].getAttribute('data-col'));
-				cells[i].click();
-				if (solveCount >= MAX_CLICK_COUNT) break;
-			}
+			const pos = resultPos[(i + g_SkipCount) % resultPos.length];
+			++solveCount;
+			console.info('click element ', cells[pos].getAttribute('data-row'), cells[pos].getAttribute('data-col'));
+			cells[pos].click();
+			if (solveCount >= MAX_CLICK_COUNT) break;
 		}
+		g_SkipCount += solveCount;
 	});
 
 }

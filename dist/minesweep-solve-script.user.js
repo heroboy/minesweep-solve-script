@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       minesweep-solve-script
 // @namespace  npm/vite-plugin-monkey
-// @version    0.0.3
+// @version    0.0.4
 // @icon       https://vitejs.dev/logo.svg
 // @match      https://mop.com/*
 // @match      https://www.253874.net/next/mine/indexdb.php
@@ -5995,7 +5995,8 @@ adjacentNodes = [];
     const solver = new MineSweepSolver(game);
     renderUI$1(await solver.solve());
   });
-  let KEEP = Math.random() * 0;
+  let KEEP = Math.random() * 1;
+  let g_SkipCount = 0;
   if (KEEP) {
     injectLiWu(async () => {
       const game = getGame();
@@ -6016,20 +6017,21 @@ adjacentNodes = [];
       const solver = new MineSweepSolver(game);
       const solveResult = await solver.solve();
       renderUI(solveResult);
-      const MAX_CLICK_COUNT = 10;
+      const MAX_CLICK_COUNT = 99;
       let solveCount = 0;
       const cells = Array.from(document.querySelectorAll("#game-board .cell"));
       if (cells.length !== solveResult.length) {
         console.error(`error,cells.length !== solveResult.length,cells.length =${cells.length}, solveResult.length =${solveResult.length}`);
       }
-      for (let i = 0; i < solveResult.length; ++i) {
-        if (solveResult[i] === 0) {
-          ++solveCount;
-          console.info("click element ", cells[i].getAttribute("data-row"), cells[i].getAttribute("data-col"));
-          cells[i].click();
-          if (solveCount >= MAX_CLICK_COUNT) break;
-        }
+      const resultPos = solveResult.map((v, i) => v === 0 ? i : -1).filter((v) => v >= 0);
+      for (let i = 0; i < resultPos.length; ++i) {
+        const pos = resultPos[(i + g_SkipCount) % resultPos.length];
+        ++solveCount;
+        console.info("click element ", cells[pos].getAttribute("data-row"), cells[pos].getAttribute("data-col"));
+        cells[pos].click();
+        if (solveCount >= MAX_CLICK_COUNT) break;
       }
+      g_SkipCount += solveCount;
     });
   }
   const __viteBrowserExternal = Object.freeze( Object.defineProperty({
